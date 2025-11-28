@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "projectName": {
+      "value": "saasapp"
+    },
+    "environment": {
+      "value": "dev"
+    },
+    "location": {
+      "value": "eastus"
+    },
+    "storageAccountSku": {
+      "value": "Standard_LRS"
+    },
+    "cosmosDbAccountName": {
+      "value": "saasapp-cosmos-dev"
+    },
+    "cosmosDbDatabaseName": {
+      "value": "saasdb"
+    },
+    "cosmosDbThroughput": {
+      "value": 400
+    },
+    "functionAppName": {
+      "value": "saasapp-func-dev"
+    },
+    "functionAppSku": {
+      "value": "Y1"
+    },
+    "nodeVersion": {
+      "value": "~18"
+    },
+    "allowedOrigins": {
+      "value": [
+        "http://localhost:3000",
+        "https://yourdomain.com"
+      ]
+    },
+    "tags": {
+      "value": {
+        "Project": "SaaS-FullStack",
+        "Environment": "Development",
+        "ManagedBy": "Bicep"
+      }
+    }
+  }
+}
