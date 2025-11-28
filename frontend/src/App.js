@@ -25,21 +25,21 @@ function App() {
               
               {/* Protected Routes */}
               <Route path="/dashboard" element={
-                <PrivateRoute>
+                //<PrivateRoute>
                   <Dashboard />
-                </PrivateRoute>
+                //</PrivateRoute>
               } />
               
               <Route path="/assets" element={
-                <PrivateRoute>
+                //<PrivateRoute>
                   <Assets />
-                </PrivateRoute>
+                //</PrivateRoute>
               } />
               
               <Route path="/subscription" element={
-                <PrivateRoute>
+                //<PrivateRoute>
                   <Subscription />
-                </PrivateRoute>
+                //</PrivateRoute>
               } />
               
               {/* Redirects */}
