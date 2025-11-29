@@ -1,0 +1,47 @@
+/* For Prdduction only: local.settings.json
+
+{
+  "IsEncrypted": false,
+  "Host": {
+    "CORS": "*",
+    "CORSCredentials": false
+  },
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "COSMOS_ENDPOINT": "https://your-cosmosdb.documents.azure.com:443/",
+    "COSMOS_KEY": "your-cosmos-key",
+    "COSMOS_DATABASE": "saas-db",
+    "STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=https;AccountName=youraccount;AccountKey=yourkey;EndpointSuffix=core.windows.net",
+    "STORAGE_CONTAINER": "assets",
+    "JWT_SECRET": "your-jwt-secret-change-in-production",
+    "STRIPE_SECRET_KEY": "sk_test_your_stripe_key",
+    "STRIPE_WEBHOOK_SECRET": "whsec_your_webhook_secret",
+    "STRIPE_STARTER_PRICE_ID": "price_starter",
+    "STRIPE_PRO_PRICE_ID": "price_pro",
+    "STRIPE_ENTERPRISE_PRICE_ID": "price_enterprise",
+    "FRONTEND_URL": "http://localhost:3000"
+  }
+}
+
+*/
+{
+  "IsEncrypted": false,
+  "Host": {
+    "CORS": "*",
+    "CORSCredentials": false
+  },
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "COSMOS_ENDPOINT": "https://localhost:8081",
+    "COSMOS_KEY": "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
+    "COSMOS_DATABASE": "saas-db",
+    "STORAGE_CONNECTION_STRING": "UseDevelopmentStorage=true",
+    "STORAGE_CONTAINER": "assets",
+    "JWT_SECRET": "dev-secret-key-12345",
+    "STRIPE_SECRET_KEY": "sk_test_51xxxxx",
+    "STRIPE_WEBHOOK_SECRET": "whsec_xxxxx",
+    "FRONTEND_URL": "http://localhost:3000"
+  }
+}
