@@ -1,0 +1,18 @@
+# Ignore parameter files with secrets
+parameters.json
+parameters.staging.json
+# Keep dev params in repo, but be careful with secrets
+# parameters.prod.json - commented out, keep this in repo with Key Vault refs
+
+# Ignore local Bicep cache
+.bicep/
+
+# Ignore deployment outputs
+*.log
+deployment-output.json
+
+# Ignore temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db

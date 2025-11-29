@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environment": {
+      "value": "prod"
+    },
+    "location": {
+      "value": "eastus"
+    },
+    "baseName": {
+      "value": "mycompanysaas"
+    },
+    "stripeSecretKey": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/{subscription-id}/resourceGroups/{rg-name}/providers/Microsoft.KeyVault/vaults/{vault-name}"
+        },
+        "secretName": "stripe-secret-key"
+      }
+    },
+    "stripeWebhookSecret": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/{subscription-id}/resourceGroups/{rg-name}/providers/Microsoft.KeyVault/vaults/{vault-name}"
+        },
+        "secretName": "stripe-webhook-secret"
+      }
+    },
+    "jwtSecret": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/{subscription-id}/resourceGroups/{rg-name}/providers/Microsoft.KeyVault/vaults/{vault-name}"
+        },
+        "secretName": "jwt-secret"
+      }
+    },
+    "frontendUrl": {
+      "value": "https://app.yourdomain.com"
+    }
+  }
+}

@@ -1,100 +1,116 @@
-// main.bicep - Minimal clean SaaS setup
+@description('The name of the environment (dev, staging, prod)')
+param environment string = 'dev'
 
-@description('Name prefix for all resources')
-param prefix string = 'saasapp'
-
-@description('Azure region')
+@description('The location for all resources')
 param location string = resourceGroup().location
 
-// --- Storage Account (for assets) ---
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-06-01' = {
-  name: '${prefix}storage'
-  location: location
-  sku: {
-    name: 'Standard_LRS'
-  }
-  kind: 'StorageV2'
-  properties: {
-    minimumTlsVersion: 'TLS1_2'
-    allowBlobPublicAccess: false
-    supportsHttpsTrafficOnly: true
+@description('The base name for all resources')
+param baseName string = 'saas${uniqueString(resourceGroup().id)}'
+
+@description('The Stripe secret key')
+@secure()
+param stripeSecretKey string
+
+@description('The Stripe webhook secret')
+@secure()
+param stripeWebhookSecret string
+
+@description('The JWT secret for token generation')
+@secure()
+param jwtSecret string
+
+@description('The frontend URL for CORS')
+param frontendUrl string = 'https://${baseName}-frontend.azurewebsites.net'
+
+
+
+// Main Infrastructure Orchestration
+targetScope = 'resourceGroup'
+
+// Parameters
+@description('Environment name')
+param environment string
+
+@description('Location for resources')
+param location string = resourceGroup().location
+
+@description('Base name for resources')
+param baseName string
+
+@secure()
+param stripeSecretKey string
+
+@secure()
+param stripeWebhookSecret string
+
+@secure()
+param jwtSecret string
+
+param frontendUrl string = 'http://localhost:3000'
+
+// Variables
+var storageAccountName = '${baseName}storage'
+var cosmosAccountName = '${baseName}-cosmos'
+var functionAppName = '${baseName}-functions'
+var appInsightsName = '${baseName}-insights'
+
+// Storage
+module storage 'modules/storage.bicep' = {
+  name: 'storage'
+  params: {
+    storageAccountName: storageAccountName
+    location: location
   }
 }
 
-// --- Blob Container for tenant assets ---
-resource blobContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-06-01' = {
-  parent: storageAccount
-  name: 'tenant-assets'
-  properties: {
-    publicAccess: 'None'
+// Cosmos DB
+module cosmos 'modules/cosmosdb.bicep' = {
+  name: 'cosmosdb'
+  params: {
+    accountName: cosmosAccountName
+    location: location
   }
 }
 
-// --- Cosmos DB (NoSQL) ---
-resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2023-03-15' = {
-  name: '${prefix}cosmos'
-  location: location
-  kind: 'MongoDB'
-  properties: {
-    databaseAccountOfferType: 'Standard'
-    locations: [
-      {
-        locationName: location
-        failoverPriority: 0
-      }
-    ]
-    enableFreeTier: true
-    capabilities: [
-      { name: 'EnableServerless' }
-    ]
+// Application Insights
+module insights 'modules/appinsights.bicep' = {
+  name: 'appinsights'
+  params: {
+    appInsightsName: appInsightsName
+    location: location
   }
 }
 
-// --- Cosmos DB database ---
-resource cosmosDb 'Microsoft.DocumentDB/databaseAccounts/mongodbDatabases@2023-03-15' = {
-  parent: cosmosAccount
-  name: 'saasdb'
-  properties: {
-    resource: {
-      id: 'saasdb'
-    }
+// Functions
+module functions 'modules/functions.bicep' = {
+  name: 'functions'
+  params: {
+    functionAppName: functionAppName
+    location: location
+    storageConnectionString: storage.outputs.connectionString
+    cosmosEndpoint: cosmos.outputs.endpoint
+    cosmosKey: cosmos.outputs.primaryKey
+    cosmosDatabase: cosmos.outputs.databaseName
+    appInsightsKey: insights.outputs.instrumentationKey
+    jwtSecret: jwtSecret
+    stripeSecretKey: stripeSecretKey
+    stripeWebhookSecret: stripeWebhookSecret
+    frontendUrl: finalFrontendUrl
   }
 }
 
-// --- Azure Functions App Plan ---
-resource functionPlan 'Microsoft.Web/serverfarms@2023-01-01' = {
-  name: '${prefix}-funcplan'
-  location: location
-  sku: {
-    name: 'Y1' // Consumption plan
-    tier: 'Dynamic'
-  }
-  kind: 'functionapp'
-}
-
-// --- Azure Functions App ---
-resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
-  name: '${prefix}-funcapp'
-  location: location
-  kind: 'functionapp'
-  properties: {
-    serverFarmId: functionPlan.id
-    siteConfig: {
-      appSettings: [
-        { name: 'FUNCTIONS_EXTENSION_VERSION'; value: '~4' }
-        { name: 'WEBSITE_RUN_FROM_PACKAGE'; value: '1' }
-        { name: 'AzureWebJobsStorage'; value: storageAccount.properties.primaryEndpoints.blob } // basic connection
-      ]
-    }
+// Static Web App
+module staticWeb 'modules/staticwebapp.bicep' = {
+  name: 'staticwebapp'
+  params: {
+    staticWebAppName: staticWebAppName
+    location: location
+    backendUrl: functions.outputs.functionAppUrl
   }
 }
 
-// --- Frontend App Service (optional) ---
-resource frontendApp 'Microsoft.Web/sites@2023-01-01' = {
-  name: '${prefix}-frontend'
-  location: location
-  kind: 'app'
-  properties: {
-    serverFarmId: functionPlan.id
-  }
-}
+// Outputs
+output functionAppUrl string = functions.outputs.functionAppUrl
+output staticWebAppUrl string = staticWeb.outputs.staticWebAppUrl
+output cosmosEndpoint string = cosmos.outputs.endpoint
+output storageAccountName string = storage.outputs.storageAccountName
